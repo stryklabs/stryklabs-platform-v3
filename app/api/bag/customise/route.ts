@@ -2,8 +2,10 @@ import { requireUser, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function GET() {
   const auth = await requireUser();
-  if ("res" in auth && !("supabase" in auth)) return auth.res;
-  const { supabase, userId } = auth;
+if (!("supabase" in auth)) return auth.res;
+
+const { supabase, userId } = auth;
+
 const { data: profile, error: pErr } = await supabase
     .from("bag_profiles")
     .select("*")
@@ -26,8 +28,9 @@ const { data: profile, error: pErr } = await supabase
 
 export async function POST(req: Request) {
   const auth = await requireUser();
-  if ("res" in auth && !("supabase" in auth)) return auth.res;
-  const { supabase, userId } = auth;
+if (!("supabase" in auth)) return auth.res;
+
+const { supabase, userId } = auth;
 const body = await req.json().catch(() => ({}));
   const bag_name = typeof body?.bag_name === "string" ? body.bag_name : null;
   const clubs = Array.isArray(body?.clubs) ? body.clubs : null;
