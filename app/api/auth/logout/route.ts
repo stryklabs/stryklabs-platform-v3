@@ -1,4 +1,4 @@
-import { jsonOk } from "../../_lib/auth";
+import { jsonOk } from "@/app/api/_lib/auth";
 import { getSupabaseServer } from "@/lib/supabase/server";
 
 export async function POST() {

@@ -1,4 +1,4 @@
-import { requireClient, jsonErr } from "../../../../_lib/auth";
+import { requireClient, jsonErr } from "@/app/api/_lib/auth";
 
 export async function GET(_req: Request, _ctx: { params: Promise<{ sessionId: string }> }) {
   const { res } = await requireClient();

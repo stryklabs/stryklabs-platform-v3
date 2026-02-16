@@ -1,4 +1,4 @@
-import { requireAdmin, jsonOk, jsonErr } from "../../_lib/auth";
+import { requireAdmin, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function GET() {
   const { supabase, res } = await requireAdmin();

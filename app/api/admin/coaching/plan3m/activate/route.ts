@@ -1,4 +1,4 @@
-import { requireAdmin, jsonOk, jsonErr } from "../../../_lib/auth";
+import { requireAdmin, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function POST(req: Request) {
   const { supabase, userId, res } = await requireAdmin();

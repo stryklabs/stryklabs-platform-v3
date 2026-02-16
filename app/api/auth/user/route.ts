@@ -1,4 +1,4 @@
-import { requireUser, jsonOk, jsonErr } from "../../_lib/auth";
+import { requireUser, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function GET() {
   const { supabase, userId, res } = await requireUser();

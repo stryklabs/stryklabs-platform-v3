@@ -1,38 +1,41 @@
 import { NextResponse } from "next/server";
-import { getSupabaseServer } from "@/lib/supabase/server";
-import { getAuthedUserId, resolveClientId } from "@/app/lib/auth/resolveClientId";
+import { getSupabaseServer } from "@/app/lib/supabase/server";
+import { getAuthedUserId, resolveClientId, type ProfileRow } from "@/app/lib/auth/resolveClientId";
 
-export async function supabaseFromRequest() {
-  return getSupabaseServer();
+export function jsonOk(data: any = {}, init?: ResponseInit) {
+  return NextResponse.json({ ok: true, ...data }, { status: 200, ...init });
 }
 
-export async function requireUser() {
-  const supabase = await supabaseFromRequest();
+export function jsonErr(status: number, error: string, extra?: Record<string, any>) {
+  return NextResponse.json({ ok: false, error, ...(extra ?? {}) }, { status });
+}
+
+export async function requireClient(): Promise<
+  | { supabase: any; userId: string; clientId: string; profile?: ProfileRow | null; res: NextResponse }
+  | { res: NextResponse }
+> {
+  const supabase = await getSupabaseServer();
   const userId = await getAuthedUserId(supabase);
-  if (!userId) return { supabase, userId: null, res: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
-  return { supabase, userId, res: null as any };
-}
+  if (!userId) return { res: jsonErr(401, "unauthorized") };
 
-export async function requireClient() {
-  const { supabase, userId, res } = await requireUser();
-  if (!userId) return { supabase, userId: null, clientId: null, profile: null, res };
   const { clientId, profile } = await resolveClientId(supabase, userId);
-  if (!clientId) return { supabase, userId, clientId: null, profile, res: NextResponse.json({ error: "Missing client_id" }, { status: 400 }) };
-  return { supabase, userId, clientId, profile: profile ?? null, res: null as any };
+  if (!clientId) return { res: jsonErr(403, "no_client") };
+
+  return { supabase, userId, clientId, profile: profile ?? null, res: NextResponse.next() };
 }
 
-export async function requireAdmin() {
-  const ctx = await requireClient();
-  if (ctx.res) return ctx as any;
-  const isAdmin = Boolean(ctx.profile?.is_admin);
-  if (!isAdmin) return { ...ctx, res: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
-  return { ...ctx, res: null as any };
-}
+export async function requireAdmin(): Promise<
+  | { supabase: any; userId: string; profile?: ProfileRow | null; res: NextResponse }
+  | { res: NextResponse }
+> {
+  const supabase = await getSupabaseServer();
+  const userId = await getAuthedUserId(supabase);
+  if (!userId) return { res: jsonErr(401, "unauthorized") };
 
-export function jsonOk(data: any, init?: number) {
-  return NextResponse.json({ ok: true, ...data }, { status: init ?? 200 });
-}
+  const { profile } = await resolveClientId(supabase, userId);
 
-export function jsonErr(status: number, message: string, extra: any = {}) {
-  return NextResponse.json({ ok: false, error: message, ...extra }, { status });
+  const isAdmin = Boolean((profile as any)?.is_admin) || (profile as any)?.role === "admin";
+  if (!isAdmin) return { res: jsonErr(403, "forbidden") };
+
+  return { supabase, userId, profile: profile ?? null, res: NextResponse.next() };
 }

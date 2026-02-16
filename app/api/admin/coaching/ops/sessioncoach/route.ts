@@ -1,4 +1,4 @@
-import { requireAdmin, jsonErr } from "../../../_lib/auth";
+import { requireAdmin, jsonErr } from "@/app/api/_lib/auth";
 
 export async function POST() {
   const { res } = await requireAdmin();

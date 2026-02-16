@@ -1,4 +1,4 @@
-import { requireUser, jsonErr } from "../_lib/auth";
+import { requireUser, jsonErr } from "@/app/api/_lib/auth";
 
 export async function POST() {
   const { res } = await requireUser();

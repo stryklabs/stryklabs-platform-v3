@@ -1,4 +1,4 @@
-import { requireClient, jsonOk, jsonErr } from "../../_lib/auth";
+import { requireClient, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function POST(req: Request) {
   const { supabase, clientId, res } = await requireClient();
