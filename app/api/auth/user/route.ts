@@ -1,10 +1,10 @@
 import { requireUser, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function GET() {
-  const { supabase, userId, res } = await requireUser();
-  if (res) return res;
-
-  const { data: u, error } = await supabase.auth.getUser();
+  const auth = await requireUser();
+  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  const { supabase, userId } = auth;
+const { data: u, error } = await supabase.auth.getUser();
   if (error || !u?.user) return jsonErr(401, "Unauthorized");
 
   // Profile is optional; do not fail if missing

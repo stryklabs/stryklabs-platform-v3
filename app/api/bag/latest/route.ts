@@ -1,10 +1,10 @@
 import { requireUser, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function POST(req: Request) {
-  const { supabase, userId, res } = await requireUser();
-  if (res) return res;
-
-  const body = await req.json().catch(() => ({}));
+  const auth = await requireUser();
+  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  const { supabase, userId } = auth;
+const body = await req.json().catch(() => ({}));
   const windowDays = Number(body?.window_days ?? 90);
   const allowed = new Set([30, 60, 90, 180]);
   const w = allowed.has(windowDays) ? windowDays : 90;

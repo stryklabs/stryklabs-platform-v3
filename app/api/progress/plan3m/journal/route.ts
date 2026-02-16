@@ -1,10 +1,10 @@
 import { requireClient, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function GET(req: Request) {
-  const { supabase, clientId, res } = await requireClient();
-  if (res) return res;
-
-  const url = new URL(req.url);
+  const auth = await requireClient();
+  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  const { supabase, clientId } = auth;
+const url = new URL(req.url);
   const weekStr = url.searchParams.get("week_number");
   const weekNum = weekStr ? Number(weekStr) : null;
 

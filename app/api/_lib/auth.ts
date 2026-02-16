@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSupabaseServer } from "@/app/lib/supabase/server";
+import { getSupabaseServer } from "@/lib/supabase/server";
 import {
   getAuthedUserId,
   resolveClientId,
@@ -22,62 +22,35 @@ export function jsonErr(
 }
 
 export async function requireUser(): Promise<
-  { supabase: any; userId: string; res: NextResponse } | { res: NextResponse }
+  { supabase: any; userId: string } | { res: NextResponse }
 > {
   const supabase = await getSupabaseServer();
   const userId = await getAuthedUserId(supabase);
   if (!userId) return { res: jsonErr(401, "unauthorized") };
-
-  return { supabase, userId, res: NextResponse.next() };
+  return { supabase, userId };
 }
 
 export async function requireClient(): Promise<
-  {
-    supabase: any;
-    userId: string;
-    clientId: string;
-    profile?: ProfileRow | null;
-    res: NextResponse;
-  } | { res: NextResponse }
+  { supabase: any; userId: string; clientId: string; profile?: ProfileRow | null } | { res: NextResponse }
 > {
-  const supabase = await getSupabaseServer();
-  const userId = await getAuthedUserId(supabase);
-  if (!userId) return { res: jsonErr(401, "unauthorized") };
+  const base = await requireUser();
+  if ("res" in base) return base;
 
+  const { supabase, userId } = base;
   const { clientId, profile } = await resolveClientId(supabase, userId);
   if (!clientId) return { res: jsonErr(403, "no_client") };
 
-  return {
-    supabase,
-    userId,
-    clientId,
-    profile: profile ?? null,
-    res: NextResponse.next(),
-  };
+  return { supabase, userId, clientId, profile: profile ?? null };
 }
 
 export async function requireAdmin(): Promise<
-  {
-    supabase: any;
-    userId: string;
-    profile?: ProfileRow | null;
-    res: NextResponse;
-  } | { res: NextResponse }
+  { supabase: any; userId: string; profile?: ProfileRow | null } | { res: NextResponse }
 > {
-  const supabase = await getSupabaseServer();
-  const userId = await getAuthedUserId(supabase);
-  if (!userId) return { res: jsonErr(401, "unauthorized") };
+  const ctx = await requireClient();
+  if ("res" in ctx) return ctx;
 
-  const { profile } = await resolveClientId(supabase, userId);
-  const isAdmin =
-    Boolean(profile?.is_admin) || profile?.role === "admin";
-
+  const isAdmin = Boolean(ctx.profile?.is_admin) || ctx.profile?.role === "admin";
   if (!isAdmin) return { res: jsonErr(403, "forbidden") };
 
-  return {
-    supabase,
-    userId,
-    profile: profile ?? null,
-    res: NextResponse.next(),
-  };
+  return { supabase: ctx.supabase, userId: ctx.userId, profile: ctx.profile ?? null };
 }

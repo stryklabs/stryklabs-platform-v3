@@ -1,10 +1,10 @@
 import { requireAdmin, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function GET(req: Request) {
-  const { supabase, res } = await requireAdmin();
-  if (res) return res;
-
-  const url = new URL(req.url);
+  const auth = await requireAdmin();
+  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  const { supabase } = auth;
+const url = new URL(req.url);
   const clientId = url.searchParams.get("client_id");
   const versionId = url.searchParams.get("version_id");
   if (!clientId || !versionId) return jsonErr(400, "Missing client_id or version_id");

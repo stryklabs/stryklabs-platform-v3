@@ -1,10 +1,10 @@
 import { requireAdmin, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function GET() {
-  const { supabase, res } = await requireAdmin();
-  if (res) return res;
-
-  const { data, error } = await supabase
+  const auth = await requireAdmin();
+  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  const { supabase } = auth;
+const { data, error } = await supabase
     .from("clients")
     .select("id, name, created_at, owner_user_id, player_user_id")
     .order("created_at", { ascending: false })

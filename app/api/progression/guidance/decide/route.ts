@@ -1,10 +1,10 @@
 import { requireClient, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function POST(req: Request) {
-  const { supabase, clientId, res } = await requireClient();
-  if (res) return res;
-
-  const body = await req.json().catch(() => ({}));
+  const auth = await requireClient();
+  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  const { supabase, clientId } = auth;
+const body = await req.json().catch(() => ({}));
   const guidanceId = String(body?.guidance_id ?? "").trim();
   const decision = String(body?.decision ?? "").trim();
 

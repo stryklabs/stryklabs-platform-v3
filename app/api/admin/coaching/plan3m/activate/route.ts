@@ -1,10 +1,10 @@
 import { requireAdmin, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function POST(req: Request) {
-  const { supabase, userId, res } = await requireAdmin();
-  if (res) return res;
-
-  const body = await req.json().catch(() => ({}));
+  const auth = await requireAdmin();
+  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  const { supabase, userId } = auth;
+const body = await req.json().catch(() => ({}));
   const clientId = String(body?.client_id ?? "").trim();
   const versionId = String(body?.version_id ?? "").trim();
   if (!clientId || !versionId) return jsonErr(400, "Missing client_id or version_id");

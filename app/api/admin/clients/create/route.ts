@@ -1,10 +1,10 @@
 import { requireAdmin, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function POST(req: Request) {
-  const { supabase, userId, res } = await requireAdmin();
-  if (res) return res;
-
-  const body = await req.json().catch(() => ({}));
+  const auth = await requireAdmin();
+  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  const { supabase, userId } = auth;
+const body = await req.json().catch(() => ({}));
   const name = String(body?.name ?? "").trim();
   if (!name) return jsonErr(400, "Missing name");
 

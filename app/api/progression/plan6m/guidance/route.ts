@@ -1,10 +1,10 @@
 import { requireClient, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function GET() {
-  const { supabase, clientId, res } = await requireClient();
-  if (res) return res;
-
-  const { data: active, error } = await supabase
+  const auth = await requireClient();
+  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  const { supabase, clientId } = auth;
+const { data: active, error } = await supabase
     .from("client_active_plans")
     .select("active_plan6m_id")
     .eq("client_id", clientId)

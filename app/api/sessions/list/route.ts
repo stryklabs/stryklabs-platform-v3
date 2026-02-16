@@ -1,10 +1,10 @@
 import { requireClient, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function GET(req: Request) {
-  const { supabase, clientId, res } = await requireClient();
-  if (res) return res;
-
-  const url = new URL(req.url);
+  const auth = await requireClient();
+  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  const { supabase, clientId } = auth;
+const url = new URL(req.url);
   const windowStr = url.searchParams.get("window") ?? "90";
   const windowDays = Number(windowStr);
   const allowed = new Set([30, 60, 90, 180, 365]);
