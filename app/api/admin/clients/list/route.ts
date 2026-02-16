@@ -2,7 +2,7 @@ import { requireAdmin, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function GET() {
   const auth = await requireAdmin();
-  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  if (!("supabase" in auth)) return auth.res;
   const { supabase } = auth;
 const { data, error } = await supabase
     .from("clients")

@@ -2,7 +2,7 @@ import { requireClient, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function GET(req: Request) {
   const auth = await requireClient();
-  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  if (!("supabase" in auth)) return auth.res;
   const { supabase, clientId } = auth;
 const url = new URL(req.url);
   const windowStr = url.searchParams.get("window") ?? "90";

@@ -2,7 +2,7 @@ import { requireUser, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function POST(req: Request) {
   const auth = await requireUser();
-  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  if (!("supabase" in auth)) return auth.res;
   const { supabase, userId } = auth;
 const body = await req.json().catch(() => ({}));
 

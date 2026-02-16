@@ -2,7 +2,7 @@ import { requireClient, jsonErr, jsonOk } from "@/app/api/_lib/auth";
 
 export async function GET(_req: Request, ctx: { params: Promise<{ sessionId: string }> }) {
   const auth = await requireClient();
-  if ("res" in auth && !("supabase" in auth)) return auth.res;
+  if (!("supabase" in auth)) return auth.res;
   const { supabase, clientId } = auth;
 const { sessionId } = await ctx.params;
   const clean = String(sessionId).replace(/[^a-f0-9-]/gi, "");
