@@ -1,0 +1,95 @@
+{
+  "schema_version": "coaching_output_v1",
+  "prompt_version": "v1.0",
+  "model": "gpt-4.1-mini",
+  "generated_at": "ISO_8601_UTC",
+
+  "ids": {
+    "client_id": "uuid",
+    "session_id": "uuid"
+  },
+
+  "inputs_snapshot": {
+    "device": {
+      "vendor": "string",
+      "source": "csv_import",
+      "capabilities": {
+        "carry_distance": true,
+        "total_distance": true,
+        "offline": true,
+        "club": true,
+        "ball_speed": false,
+        "club_speed": false,
+        "smash_factor": false,
+        "launch_angle": false,
+        "spin_rate": false,
+        "apex": false
+      }
+    },
+    "session_facts": {
+      "date": "YYYY-MM-DD",
+      "total_shots": 0,
+      "ghps_score": 0,
+      "handicap_estimate": null
+    },
+    "computed_metrics": {
+      "by_club": [],
+      "dispersion": {},
+      "distance_control": {},
+      "contact_quality": {}
+    },
+    "history_window": {
+      "sessions_considered": 0,
+      "trend_metrics_present": false
+    }
+  },
+
+  "scorecard": {
+    "headline_win": {
+      "title": "string",
+      "evidence": []
+    },
+    "main_focus": {
+      "title": "string",
+      "why_it_matters": "string"
+    },
+    "trend_callouts": [],
+    "next_session_targets": [],
+    "recommended_drills": [],
+    "time_budget_plan": {
+      "per_week": "string",
+      "session_split": []
+    }
+  },
+
+  "coach_plan": {
+    "priorities_ranked": [],
+    "drills_program": [],
+    "weekly_micro_plan": {
+      "week_length_days": 7,
+      "sessions": []
+    },
+    "what_to_ignore_for_now": []
+  },
+
+  "insights": {
+    "strengths": [],
+    "weaknesses": [],
+    "key_numbers": []
+  },
+
+  "confidence_and_limits": {
+    "confidence_score": 0,
+    "data_missing": [],
+    "no_guessing_note": "string",
+    "safe_advice_guardrails": [
+      "Only claim what is supported by metrics.",
+      "If a metric is missing, propose a measurement drill rather than a fix."
+    ]
+  },
+
+  "render_md": {
+    "scorecard_md": "string",
+    "coach_plan_md": "string"
+  }
+}
