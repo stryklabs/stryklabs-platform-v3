@@ -2,22 +2,34 @@ import { requireAdmin, jsonOk, jsonErr } from "@/app/api/_lib/auth";
 
 export async function POST(req: Request) {
   const auth = await requireAdmin();
-  if ("res" in auth && !("supabase" in auth)) return auth.res;
-  const { supabase, userId } = auth;
-const body = await req.json().catch(() => ({}));
-  const clientId = String(body?.client_id ?? "").trim();
-  const versionId = String(body?.version_id ?? "").trim();
-  if (!clientId || !versionId) return jsonErr(400, "Missing client_id or version_id");
+  if (!("supabase" in auth)) return auth.res;
 
-  // upsert client_active_plans
-  const { error } = await supabase.from("client_active_plans").upsert({
-    client_id: clientId,
-    active_plan3m_id: versionId,
-    updated_by: userId,
-    plan3m_touched_at: new Date().toISOString(),
-  }, { onConflict: "client_id" });
+  const { supabase } = auth;
 
-  if (error) return jsonErr(500, error.message);
+  const body = await req.json().catch(() => ({}));
+  const planId = body?.planId ?? body?.id ?? null;
 
-  return jsonOk({ active_plan3m_id: versionId });
+  if (!planId) return jsonErr(400, "missing_planId");
+
+  // Minimal activation: mark selected plan active and others inactive.
+  // (No guessing beyond this; assumes coaching_plans table exists and supports active flag.)
+  const { error: deactivateErr } = await supabase
+    .from("coaching_plans")
+    .update({ active: false })
+    .eq("duration", "3m");
+
+  if (deactivateErr)
+    return jsonErr(500, "deactivate_failed", { detail: deactivateErr.message });
+
+  const { data, error: activateErr } = await supabase
+    .from("coaching_plans")
+    .update({ active: true })
+    .eq("id", planId)
+    .select("*")
+    .single();
+
+  if (activateErr)
+    return jsonErr(500, "activate_failed", { detail: activateErr.message });
+
+  return jsonOk({ activePlan: data });
 }
